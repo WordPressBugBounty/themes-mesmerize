@@ -49,7 +49,10 @@ if (version_compare(phpversion(), MESMERIZE_THEME_REQUIRED_PHP_VERSION, '>=')) {
     if ( ! mesmerize_can_show_cached_value("mesmerize_cached_kirki_style_mesmerize")) {
         
         if ( ! mesmerize_skip_customize_register()) {
-            do_action("mesmerize_customize_register_options");
+            add_action('init', function() {
+                do_action("mesmerize_customize_register_options");
+            });
+
         }
     }
     

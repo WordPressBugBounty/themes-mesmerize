@@ -89,9 +89,12 @@ function mesmerize_theme_kirki_palettes($palettes)
     return array_unique($palettes);
 }
 
-mesmerize_add_kirki_field(array(
-    'type'     => 'ope-info-pro',
-    'label'    => esc_html__('Customize all theme colors in PRO. @BTN@', 'mesmerize'),
-    'section'  => 'colors',
-    'settings' => "site_colors_info_pro",
-));
+
+add_action('init', function() {
+    mesmerize_add_kirki_field(array(
+        'type'     => 'ope-info-pro',
+        'label'    => esc_html__('Customize all theme colors in PRO. @BTN@', 'mesmerize'),
+        'section'  => 'colors',
+        'settings' => "site_colors_info_pro",
+    ));
+});

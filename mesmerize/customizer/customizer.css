@@ -1151,8 +1151,10 @@ li#accordion-section-header_layout {
 }
 
 #customize-controls li#accordion-section-header_layout:hover,
-#customize-controls li#accordion-section-header_layout > h3:hover {
-    background-color: #657381;
+#customize-controls li#accordion-section-header_layout button:hover,
+#customize-controls li#accordion-section-header_layout button:focus {
+    background-color: transparent;
+    color: inherit;
     border-left-color: #41bff1;
 }
 
@@ -1160,7 +1162,7 @@ li#accordion-section-header_layout {
     color: #ffffff;
 }
 
-
+/*CUSTOMIZER ICONS*/
 li#accordion-section-header_layout h3:before {
     width: 20px;
     height: 20px;
@@ -1173,7 +1175,6 @@ li#accordion-section-header_layout h3:before {
     vertical-align: top;
     text-align: center;
     content: "\f100";
-    margin-right: 8px;
 }
 
 /*WEB GRADIENTS*/
@@ -1612,8 +1613,7 @@ li.category-title.closeable {
     border-left: 0;
     color: #ffffff;
     background-image: linear-gradient(140deg, rgb(78, 194, 246) 0%, rgba(69, 58, 148, 0.8) 100%);
-    display: block !important;
-   
+    display: block !important;   
 }
 
 #customize-controls li#accordion-section-extendthemes_start_from_demo_site {
@@ -1623,8 +1623,9 @@ li.category-title.closeable {
 }
 
 #customize-controls li#accordion-section-extendthemes_start_from_demo_site:hover,
-#customize-controls li#accordion-section-extendthemes_start_from_demo_site > h3:hover {
-    background-color: #657381;
+#customize-controls li#accordion-section-extendthemes_start_from_demo_site button:hover {
+    background-color: transparent;
+    color: inherit;
     border-left-color: #41bff1;
 }
 
@@ -1644,7 +1645,6 @@ li#accordion-section-extendthemes_start_from_demo_site h3:before {
     vertical-align: top;
     text-align: center;
     content: "\f547";
-    margin-right: 8px;
 }
 
 #customize-controls li#accordion-section-extendthemes_start_from_demo_site h3:after {
@@ -1680,8 +1680,6 @@ li#accordion-section-extendthemes_start_from_demo_site {
 
 li#accordion-section-header_layout > h3,
 li#accordion-section-extendthemes_start_from_demo_site > h3 {
-    padding-top: 6px;
-    padding-bottom: 6px;
     line-height: 30px;
 }
 
@@ -1689,3 +1687,59 @@ li#accordion-section-extendthemes_start_from_demo_site > h3 {
 .customize-control-kirki-checkbox input[type=checkbox]:checked:before, .customize-control-kirki-multicheck input[type=checkbox]:checked:before, .customize-control-repeater input[type=checkbox]:checked:before {
     line-height: 1;
 }
+
+/* WP 6.7 fixes */
+
+.customize-pane-parent {
+    overflow-x: hidden;
+}
+
+#customize-theme-controls .accordion-section-title button.accordion-trigger {
+    height: auto;
+    box-sizing: border-box;
+}
+
+#accordion-panel-page_content_panel h3::after {
+    display: none !important;
+    visibility: hidden;
+}
+
+li#accordion-section-extendthemes_start_from_demo_site:has(button) h3:before {
+    display: none;
+}
+
+li#accordion-section-header_layout:has(button) h3:before {
+    display: none;
+}
+
+li#accordion-section-extendthemes_start_from_demo_site button:before {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+    font-family: dashicons;
+    text-decoration: inherit;
+    font-weight: normal;
+    font-style: normal;
+    vertical-align: top;
+    text-align: center;
+    content: "\f547";
+    margin-right: 8px;
+}
+
+li#accordion-section-header_layout button:before {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    line-height: 20px;
+    font-family: dashicons;
+    text-decoration: inherit;
+    font-weight: normal;
+    font-style: normal;
+    vertical-align: top;
+    text-align: center;
+    content: "\f100";
+    margin-right: 8px;
+}
+
+/* end */

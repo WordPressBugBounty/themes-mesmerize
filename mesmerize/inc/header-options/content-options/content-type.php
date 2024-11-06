@@ -645,6 +645,7 @@ function mesmerize_front_page_header_content_options($section, $prefix, $priorit
                 "value"  => "content-on-center",
                 "fields" => array(
                     'header_text_box_text_align' => 'center',
+					'header_text_box_text_width' => 85,
                     'header_spacing'             => apply_filters(
                         'mesmerize_header_content_spacing_partial_update',
                         array(
@@ -659,6 +660,7 @@ function mesmerize_front_page_header_content_options($section, $prefix, $priorit
                 "value"  => "content-on-right",
                 "fields" => array(
                     'header_text_box_text_align' => 'right',
+                    'header_text_box_text_width' => 85,
                     'header_spacing'             => apply_filters(
                         'mesmerize_header_content_spacing_partial_update',
                         array(
@@ -673,6 +675,7 @@ function mesmerize_front_page_header_content_options($section, $prefix, $priorit
                 "value"  => "content-on-left",
                 "fields" => array(
                     'header_text_box_text_align' => 'left',
+                    'header_text_box_text_width' => 85,
                     'header_spacing'             => apply_filters(
                         'mesmerize_header_content_spacing_partial_update',
                         array(

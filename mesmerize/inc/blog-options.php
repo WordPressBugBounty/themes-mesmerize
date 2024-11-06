@@ -98,8 +98,10 @@ function mesmerize_add_blog_options($section)
     ));
     
 }
+add_action('init', function() {
+    mesmerize_add_blog_options('blog_settings');
+});
 
-mesmerize_add_blog_options('blog_settings');
 
 
 function mesmerize_show_post_meta_setting_filter($value)
