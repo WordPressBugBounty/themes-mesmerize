@@ -44,6 +44,9 @@ The exceptions to this license are as follows:
 *  Font Awesome 4.7.0 by @davegandy - http://fontawesome.io - @fontawesome
    License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
 
+*  Font Awesome 6.7.2 by @davegandy - http://fontawesome.io - @fontawesome
+   License - http://fontawesome.io/license (Font: SIL OFL 1.1, CSS: MIT License)
+
 *  Kube. CSS & JS Framework - http://imperavi.com/kube/
    Copyright (c) 2009-2017, Imperavi LLC.
    Licensed under the MIT license (https://opensource.org/licenses/MIT)

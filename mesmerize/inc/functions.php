@@ -583,6 +583,7 @@ function mesmerize_enqueue_styles( $textDomain, $ver, $is_child ) {
 		)
 	);
 
+
 	if ( apply_filters( 'mesmerize_load_bundled_version', true ) ) {
 
 		mesmerize_enqueue_style(
@@ -598,6 +599,12 @@ function mesmerize_enqueue_styles( $textDomain, $ver, $is_child ) {
 			$textDomain . '-font-awesome',
 			array(
 				'src' => get_template_directory_uri() . '/assets/font-awesome/font-awesome.min.css',
+			)
+		);
+		mesmerize_enqueue_style(
+			$textDomain . '-font-awesome-extra',
+			array(
+				'src' => get_template_directory_uri() . '/assets/font-awesome/font-awesome-extra.min.css',
 			)
 		);
 

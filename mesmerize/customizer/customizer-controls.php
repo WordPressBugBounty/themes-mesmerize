@@ -551,7 +551,10 @@ class FontAwesomeIconControl extends \Kirki_Customize_Control {
 		static::$enqueued = true;
 
 		wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/assets/font-awesome/font-awesome.min.css' );
-
+		wp_enqueue_style(
+			'font-awesome-extra',
+			 get_template_directory_uri() . '/assets/font-awesome/font-awesome-extra.min.css'
+		);
 
 		if ( ! apply_filters( 'mesmerize_load_bundled_version', true ) ) {
 			wp_enqueue_style( 'font-awesome-media-tab', get_template_directory_uri() . "/customizer/css/fa-tab.css",

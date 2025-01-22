@@ -452,10 +452,27 @@ add_action( 'wp_ajax_mesmerize_list_fa', function () {
 			'sizes' => null,
 		);
 	}
-
+	$result = apply_filters( "wp_ajax_mesmerize_list_fa_result", $result );
 	echo json_encode( $result );
 	exit;
 } );
+
+add_filter('wp_ajax_mesmerize_list_fa_result', function($result) {
+	$icons  = ( require get_template_directory() . "/customizer/font-awesome-extra-icons-list.php" );
+	foreach ( $icons as $icon ) {
+		$title    = str_replace( '-', ' ', str_replace( 'fa-', '', $icon ) );
+		$icon_id = "fa-extra-$icon";
+		$result[] = array(
+			'id'    => $icon_id,
+			'fa'    => $icon_id,
+			"title" => $title,
+			'mime'  => "fa-icon/font",
+			'sizes' => null,
+		);
+	}
+
+	return $result;
+});
 
 
 //TODO: needs refactoring
