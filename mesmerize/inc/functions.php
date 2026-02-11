@@ -1217,7 +1217,7 @@ function mesmerize_color_picker_scripts() {
 	wp_enqueue_style( 'wp-color-picker' );
 	wp_enqueue_script( 'iris', admin_url( 'js/iris.min.js' ),
 		array( 'jquery-ui-draggable', 'jquery-ui-slider', 'jquery-touch-punch' ), false, true );
-	wp_enqueue_script( 'wp-color-picker', admin_url( 'js/color-picker.min.js' ), array( 'iris', 'wp' ), false, true );
+	wp_enqueue_script( 'wp-color-picker', admin_url( 'js/color-picker.min.js' ), array( 'iris', 'wp-i18n' ), false, true );
 
 	$colorpicker_l10n = array(
 		'clear'         => __( 'Clear', 'mesmerize' ),
