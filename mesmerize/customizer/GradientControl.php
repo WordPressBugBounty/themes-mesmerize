@@ -19,7 +19,7 @@ class GradientControl extends \Kirki_Customize_Control
     public function enqueue()
     {
         $jsRoot = get_template_directory_uri() . "/customizer/js";
-        wp_enqueue_script(mesmerize_get_text_domain() . '-gradient-control', $jsRoot . "/gradient-control.js", array('mesmerize-customizer-spectrum'));
+        wp_enqueue_script(mesmerize_get_text_domain() . '-gradient-control', $jsRoot . "/gradient-control.js", array());
     }
     
     

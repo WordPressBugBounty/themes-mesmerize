@@ -4,6 +4,7 @@ if ( ! defined('ABSPATH')) {
     die('Silence is golden');
 }
 
+require_once __DIR__ . '/../siteleads-integration/index.php';
 
 function mesmerize_get_integration_modules()
 {

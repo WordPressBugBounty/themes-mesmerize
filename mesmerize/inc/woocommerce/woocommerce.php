@@ -361,8 +361,9 @@ function mesmerize_woocommerce_get_size($cols)
 
 function mesmerize_woocommerce_cols_css($sel, $cols)
 {
-    $size = (100 / intval($cols));
-    
+    $int_cols =  intval($cols);
+    $size = !is_nan($int_cols) && $int_cols > 0 ? 100 / $int_cols : 50;
+
     return "" .
            "$sel {" .
            "-webkit-flex-basis: $size%;" .
