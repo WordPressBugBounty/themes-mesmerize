@@ -43,7 +43,10 @@
 }
 .mesmerize-siteleads-integration-button__icon {
   margin-bottom: -10px;
-  margin-top: -5px;
+}
+.mesmerize-siteleads-integration-button__icon svg {
+  width: 100%;
+  height: auto;
 }
 .mesmerize-siteleads-integration-button__logo {
   position: absolute;
@@ -55,9 +58,10 @@
 .mesmerize-siteleads-integration-button__logo__container {
   position: relative;
   width: 100%;
-  aspect-ratio: 243/58;
 }
 .mesmerize-siteleads-integration-button__title {
+  font-size: 16px;
+  line-height: 1.2;
   font-weight: 600;
 }
 .mesmerize-siteleads-integration-button__title span {

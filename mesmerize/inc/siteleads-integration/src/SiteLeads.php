@@ -31,7 +31,10 @@ class SiteLeads {
             'siteleads_init_setup',
             array( $this, 'ajax_siteleads_plugin_init_setup' )
         );
-
+        Hooks::add_wp_ajax(
+            'siteleads_toggle_enabled',
+            array( $this, 'ajax_siteleads_plugin_toggle_enabled' )
+        );
 
         add_action( 'wp_footer', array( $this, 'print_call_icon_no_site_leads' ) );
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_assets' ) );
@@ -43,6 +46,11 @@ class SiteLeads {
 
         $result =  $instance->get_siteleads_integration_is_active() && !$instance->get_site_leads_plugin_is_active();
         return $result;
+    }
+
+    public static function get_current_theme_name() {
+        $theme = wp_get_theme();
+        return $theme->get('Name');
     }
     public function get_siteleads_integration_is_active() {
         return   Flags::get(static::ENABLE_SITE_LEADS_INTEGRATION_FLAG);
@@ -110,6 +118,53 @@ class SiteLeads {
         );
     }
 
+    public static function printSiteLeadsRecommendationPlugins() {
+        ?>
+          <div class="mesmerize-siteleads-recommendation-plugins-tooltip__container">
+              <span><?php echo esc_html(__('plugins', 'mesmerize')) ?></span>
+              <div class="mesmerize-siteleads-recommendation-plugins-tooltip">
+                    <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <g
+                                opacity="0.5" > <path
+                                    d="M8.00016 14.9544C11.6821 14.9544 14.6668 11.9697 14.6668 8.28776C14.6668 4.60586 11.6821 1.62109 8.00016 1.62109C4.31826 1.62109 1.3335 4.60586 1.3335 8.28776C1.3335 11.9697 4.31826 14.9544 8.00016 14.9544Z"
+                                    stroke="#747C97" stroke-width="1.33" stroke-linecap="round"
+                                    stroke-linejoin="round"></path> <path d="M8 10.9538V8.28711" stroke="#747C97"
+                                                                          stroke-width="1.33" stroke-linecap="round"
+                                                                          stroke-linejoin="round"></path> <path
+                                    d="M8 5.62109H8.00667" stroke="#747C97" stroke-width="1.33" stroke-linecap="round"
+                                    stroke-linejoin="round"></path> </g> <defs>
+                            <clipPath id="clip0_1771_2646">
+                                <rect width="16" height="16" fill="white"
+                                        transform="translate(0 0.287109)">
+
+                                </rect>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                        <div class="mesmerize-siteleads-recommendation-plugins-tooltip__content">
+                            <div class="mesmerize-siteleads-recommendation-plugins-tooltip__item">
+                                <div class="mesmerize-siteleads-recommendation-plugins-tooltip__item__title">
+                                    <?php echo esc_html(__('Mesmerize Companion (free)', 'mesmerize'));?>
+                                </div>
+                                <div class="mesmerize-siteleads-recommendation-plugins-tooltip__item__description">
+                                    <?php echo esc_html(sprintf(__('Adds drag and drop functionality and many other features to the %s theme.', 'mesmerize'),  static::get_current_theme_name()));?>
+                                </div>
+                            </div>
+
+                            <div class="mesmerize-siteleads-recommendation-plugins-tooltip__item">
+                                <div class="mesmerize-siteleads-recommendation-plugins-tooltip__item__title">
+                                    <?php echo esc_html(__('SiteLeads (free)', 'mesmerize'))?>
+                                </div>
+                                <div class="mesmerize-siteleads-recommendation-plugins-tooltip__item__description">
+                                    <?php echo esc_html(__('Get more leads from your site by adding popular contact channels: Whatsapp, Messenger, Phone, AI Assistant, etc.', 'mesmerize'))?>
+                                </div>
+                            </div>
+
+                        </div>
+                </div>
+          </div>
+            <?php
+    }
 
     public function print_call_icon_no_site_leads() {
         if ( ! $this->should_show_contact_widge_no_site_leads_active() ) {
@@ -147,6 +202,63 @@ class SiteLeads {
     }
 
 
+
+
+
+    public function ajax_siteleads_plugin_toggle_enabled() {
+        check_ajax_referer( Theme::prefix( 'siteleads_nonce' ) );
+        if ( ! current_user_can( 'edit_theme_options' ) ) {
+            wp_send_json_error( __( 'Not allowed', 'mesmerize' ), 400 );
+        }
+        if ( ! $this->get_site_leads_plugin_is_active() ) {
+            wp_send_json_error( __( 'Required plugin is missing', 'mesmerize' ), 400 );
+        }
+        if ( ! class_exists( '\SiteLeads\Features\Widgets\FCWidgetsManager' ) ||
+            ! method_exists( '\SiteLeads\Features\Widgets\FCWidgetsManager', 'toggleWidgetEnabled' ) ||
+            ! method_exists( '\SiteLeads\Features\Widgets\FCWidgetsManager', 'getWidgetListOptions' )
+        ) {
+            wp_send_json_error(__('Required class or functions are missing', 'mesmerize'), 400);
+        }
+
+
+        if ( ! isset( $_POST['enabled'] ) ) {
+            wp_send_json_error( __( 'Missing required parameter: enabled', 'mesmerize' ), 400 );
+        }
+        if ( ! isset( $_POST['widget_id'] ) ) {
+            wp_send_json_error( __( 'Missing required parameter: widget_id', 'mesmerize' ), 400 );
+        }
+        // Sanitize the input
+        $raw_enabled = sanitize_text_field( $_POST['enabled'] );
+
+        $enabled = in_array( $raw_enabled, array( 'true', '1' ), true );
+
+
+
+        $widget_id =  sanitize_text_field( $_POST['widget_id'] );
+        if ( empty( $widget_id ) || !is_string($widget_id)) {
+
+
+            //if no widget_id is provided try to find the first and only widget id if more or less are present skip this logic
+            $widgets_lists =  \SiteLeads\Features\Widgets\FCWidgetsManager::getWidgetListOptions();
+            if(!empty($widgets_lists) && is_array($widgets_lists) && count($widgets_lists) === 1) {
+                $first_widget = $widgets_lists[0];
+                $first_widget_id = isset($first_widget['value']) ? $first_widget['value'] : null;
+                if(!empty($first_widget_id)) {
+                    $widget_id = $first_widget_id;
+                }
+            }
+
+            if(empty( $widget_id ) || !is_string($widget_id)) {
+                wp_send_json_error( __( 'Missing widget id', 'mesmerize' ), 400 );
+            }
+
+
+        }
+
+
+        \SiteLeads\Features\Widgets\FCWidgetsManager::toggleWidgetEnabled( $widget_id, $enabled );
+        wp_send_json_success();
+    }
     public function ajax_siteleads_plugin_init_setup() {
         check_ajax_referer( Theme::prefix( 'siteleads_nonce' ) );
         if ( ! current_user_can( 'edit_theme_options' ) ) {
@@ -166,15 +278,55 @@ class SiteLeads {
             Flags::set( 'siteLeadsInstalled', true );
         }
         if ( ! class_exists( '\SiteLeads\Features\Widgets\FCWidgetsManager' ) ||
-            ! method_exists( '\SiteLeads\Features\Widgets\FCWidgetsManager', 'createDefaultWidgetWithOnlyPhoneChannel' )
+            ! method_exists( '\SiteLeads\Features\Widgets\FCWidgetsManager', 'createDefaultWidgetWithOnlyPhoneChannel' ) ||
+            ! method_exists( '\SiteLeads\Features\Widgets\FCWidgetsManager', 'createDefaultWidgetWithPhoneWhatsappAndEmail' )
         ) {
             wp_send_json_error(__('Required class or functions are missing', 'mesmerize'), 400);
         }
         $phone_nr = isset( $_POST['phone'] ) ? sanitize_text_field( $_POST['phone'] ) : '';
 
         try {
+            if(empty($phone_nr)) {
+                //try to get the phone number from the customizer for cases like wp admin screen
+                $customzier_phone_nr = get_theme_mod( Theme::prefix( 'siteleads_number' ), '' );
+                if(!empty($customzier_phone_nr)) {
+                    $phone_nr = $customzier_phone_nr;
+                }
+            }
 
-           \SiteLeads\Features\Widgets\FCWidgetsManager::createDefaultWidgetWithOnlyPhoneChannel( $phone_nr );
+            $start_source = isset( $_POST['start_source'] ) ? sanitize_text_field( $_POST['start_source'] ) : '';
+            $options = [];
+            if(!empty($start_source) && is_string($start_source)) {
+                $options['start_source'] = $start_source;
+            }
+
+
+            //if phone is provided create phone only widget otherwise create the 3 widget default
+            if(!empty($phone_nr)) {
+                $method = new \ReflectionMethod(
+                    \SiteLeads\Features\Widgets\FCWidgetsManager::class,
+                    'createDefaultWidgetWithOnlyPhoneChannel'
+                );
+
+                $number_of_parameters = $method->getNumberOfParameters();
+                if ($number_of_parameters === 2) {
+                    \SiteLeads\Features\Widgets\FCWidgetsManager::createDefaultWidgetWithOnlyPhoneChannel($phone_nr, $options);
+                } else {
+                    \SiteLeads\Features\Widgets\FCWidgetsManager::createDefaultWidgetWithOnlyPhoneChannel($phone_nr);
+                }
+            } else {
+                $method = new \ReflectionMethod(
+                    \SiteLeads\Features\Widgets\FCWidgetsManager::class,
+                    'createDefaultWidgetWithPhoneWhatsappAndEmail'
+                );
+
+                $number_of_parameters = $method->getNumberOfParameters();
+                if ($number_of_parameters === 1) {
+                    \SiteLeads\Features\Widgets\FCWidgetsManager::createDefaultWidgetWithPhoneWhatsappAndEmail($options);
+                } else {
+                    \SiteLeads\Features\Widgets\FCWidgetsManager::createDefaultWidgetWithPhoneWhatsappAndEmail();
+                }
+            }
 
             wp_send_json_success();
 
@@ -263,7 +415,7 @@ class SiteLeads {
                 'default'           => true,
                 'type'              => 'theme_mod',
                 'sanitize_callback' => 'wp_validate_boolean',
-               // 'transport'         => 'postMessage',
+                'transport'         => 'postMessage',
             )
         );
 
@@ -273,8 +425,7 @@ class SiteLeads {
                 'label'    => __( 'Show Contact Widget', 'mesmerize' ),
                 'section'  => Theme::prefix( 'contact_settings' ),
                 'type'     => 'checkbox',
-                'priority' => 9,
-                'active_callback' => array( $this, 'is_siteleads_inactive' ),
+                'priority' => 9
             )
         );
 
@@ -329,7 +480,7 @@ class SiteLeads {
             esc_url( 'plugins.php' )
         );
     }
-    private function get_plugin_status( $plugin_file ) {
+    public function get_plugin_status( $plugin_file ) {
         if ( is_plugin_active( $plugin_file ) ) {
             return 'active';
         }
@@ -364,8 +515,10 @@ class SiteLeads {
             'siteLeadsInitWpAjaxHandle'          => Theme::prefix( 'siteleads_init_setup' ),
             'siteLeadsToggleEnabledWpAjaxHandle' => Theme::prefix( 'siteleads_toggle_enabled' ),
             'pluginSettingsUrl'                  => $this->get_site_leads_settings_page_url(),
-            'adminPhpUrl'                           => admin_url('admin.php'),
+            'adminPhpUrl'                        => admin_url('admin.php'),
+            'contactSectionId'                   =>  Theme::prefix( 'contact_settings' ),
             'translations'                       => $this->get_js_text_translations(),
+            'siteLeadsIntegrationIsEnabled'      => static::show_install_siteleads_recommendation(),
         );
 
         return $site_leads_settings;
@@ -399,7 +552,9 @@ class SiteLeads {
             'error_could_not_activate_plugin'       => __( 'Could not activate the SiteLeads plugin', 'mesmerize' ),
             'error_could_not_toggle_plugin_enabled' => __( 'Could not toggle Siteleads plugin status', 'mesmerize' ),
 
-
+            'installingSiteLeads' => __('Installing SiteLeads', 'mesmerize'),
+            'activatingSiteLeads' => __('Activating SiteLeads', 'mesmerize'),
+            'initSetupSiteLeads'  => __('Creating initial SiteLeads widget', 'mesmerize')
         );
     }
 

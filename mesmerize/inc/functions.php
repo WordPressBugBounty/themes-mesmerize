@@ -1262,3 +1262,61 @@ add_action(
 );
 
 
+function mesmerize_load_install_companion_script($options) {
+    if(!\Mesmerize\SiteLeadsThemeKit\SiteLeads::show_install_siteleads_recommendation()) {
+        return;
+    }
+    $textDomain   = mesmerize_get_text_domain();
+    $theme = wp_get_theme();
+    $ver   = $theme->get( 'Version' );
+    $handle = $textDomain . 'install-companion-script';
+    wp_enqueue_script(
+        "$handle-js",
+        get_template_directory_uri() . '/customizer/js/recommended-plugins-installer.js',
+        array('jquery'),
+        $ver,
+        true
+    );
+    wp_enqueue_style(
+        "$handle-css",
+        get_template_directory_uri() . '/customizer/css/recommended-plugins-installer.css',
+    );
+    $companion_plugin_slug = 'mesmerize-companion';
+    $companion_plugin_file = 'mesmerize-companion/mesmerize-companion.php';
+    $activation_link =  \Mesmerize\SiteLeadsThemeKit\SiteLeads::get_instance()->get_plugin_action_link($companion_plugin_file);
+ 	$settings = [
+        'siteLeads' => \Mesmerize\SiteLeadsThemeKit\SiteLeads::get_instance()->get_js_data(),
+        'mesmerizeCompanionSlug' => $companion_plugin_slug,
+        'mesmerizeCompanionActivationLink'  => $activation_link,
+        'mesmerizeCompanionPluginStatus' => \Mesmerize\SiteLeadsThemeKit\SiteLeads::get_instance()->get_plugin_status('mesmerize-companion/mesmerize-companion.php'),
+        'customizerUrl'  => admin_url( 'customize.php' ),
+        'translations' => [
+            'preparing' => __('Preparing', 'mesmerize'),
+            'installingCompanion' => __('Installing Mesmerize Companion', 'mesmerize'),
+            'activatingCompanion' => __('Activating Mesmerize Companion', 'mesmerize'),
+        ]
+    ];
+    $start_source = isset($options['startSource']) ? $options['startSource'] : null;
+     $settings['siteLeads']['startSource'] =$start_source;
+		wp_add_inline_script(
+            'jquery',
+            sprintf(
+                'window.mesmerizeCompanionInstallerData = %s;',
+                wp_json_encode( $settings )
+            )
+        );
+}
+function mesmerize_load_install_companion_script_in_wp_admin() {
+    $options = [
+            'startSource' => 'theme-notice'
+    ];
+    mesmerize_load_install_companion_script($options);
+}
+add_action('admin_enqueue_scripts', 'mesmerize_load_install_companion_script_in_wp_admin');
+
+function mesmerize_load_install_companion_script_in_customizer() {
+    mesmerize_load_install_companion_script([
+        'startSource' => 'customizer-button'
+    ]);
+}
+add_action('customize_controls_enqueue_scripts', 'mesmerize_load_install_companion_script_in_customizer');

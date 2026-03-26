@@ -3,6 +3,8 @@
 namespace Mesmerize;
 
 
+use Mesmerize\SiteLeadsThemeKit\SiteLeads;
+
 class BaseControl extends \WP_Customize_Control {
 	protected $data = null;
 
@@ -643,11 +645,31 @@ class FrontPageSection extends \WP_Customize_Section {
                 <ul id="page_full_rows" class="list list-order">
                     <li class="">
                         <div class="customize-control-ope-info">
-                            <p style="text-align: center;padding: 10px;font-size: 1em;background: #b9dbf7;">
-								<?php esc_html_e( 'Please Install the Mesmerize Companion Plugin to Enable All the Theme Features',
-									'mesmerize' ) ?>
+                            <div style="text-align: center;padding: 10px;font-size: 1em;background: #b9dbf7;">
+                            <?php
+                            if(SiteLeads::show_install_siteleads_recommendation()) {
+                            ?>
+
+                                    <?php
+                                    esc_html_e(
+                                        sprintf(
+                                            __( 'To enable all theme features, please Install the %s recommended', 'mesmerize' ),
+                                            SiteLeads::get_current_theme_name()
+                                        )
+                                    );
+                                    SiteLeads::printSiteLeadsRecommendationPlugins();
+                                    ?>
+
+                            <?php
+                            } else {
+                                esc_html_e( 'Please Install the Mesmerize Companion Plugin to Enable All the Theme Features',
+                                    'mesmerize' );
+                            }
+                            ?>
+
                                 <span style="display: block">
 								<?php
+
 								if ( \Mesmerize\Companion_Plugin::$plugin_state['installed'] ) {
 									$mesmerize_link  = \Mesmerize\Companion_Plugin::get_activate_link();
 									$mesmerize_label = esc_html__( 'Activate now', 'mesmerize' );
@@ -655,12 +677,15 @@ class FrontPageSection extends \WP_Customize_Section {
 									$mesmerize_link  = \Mesmerize\Companion_Plugin::get_install_link();
 									$mesmerize_label = esc_html__( 'Install now', 'mesmerize' );
 								}
+                                if(SiteLeads::show_install_siteleads_recommendation()) {
+                                    $mesmerize_label = esc_html__( 'Enable all theme features', 'mesmerize' );
+                                }
 								printf( '<a class="button button-small button-orange upgrade-to-pro" href="%1$s" install-source="customizer">%2$s</a>',
 									esc_url( $mesmerize_link ),
 									$mesmerize_label );
 								?>
                             </span>
-                            </p>
+                            </div>
                         </div>
 
                     </li>

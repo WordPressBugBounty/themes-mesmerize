@@ -1,4 +1,7 @@
 (function ($) {
+  async function sleep(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+  }
   function getSiteLeadsBackendData(path, defaultValue) {
     return _.get(top.mesmerizeSiteLeadsCustomizerData, path, defaultValue);
   }
@@ -137,6 +140,40 @@
       noticeErrorNode.style.display = 'none';
     }
   }
+  async function toggleEnabledSiteLeadsPlugin(newValue) {
+    const ajaxHandle = getSiteLeadsBackendData('siteLeadsToggleEnabledWpAjaxHandle');
+    const nonce = getSiteLeadsBackendData('siteLeadsNonce');
+    const widgetId = getWidgetId();
+    const promise = new Promise((resolve, reject) => {
+      wp.ajax.post(ajaxHandle, {
+        enabled: newValue ? '1' : '0',
+        widget_id: widgetId,
+        _wpnonce: nonce
+      }).done(response => {
+        resolve(response);
+      }).fail(error => {
+        reject(error);
+      });
+    });
+    try {
+      const result = await promise;
+      wp.customize.previewer.refresh();
+      return true;
+    } catch (e) {
+      //setErrorMessage(getTranslatedText('error_could_not_toggle_plugin_enabled'));
+      console.error(e);
+      return false;
+    }
+  }
+  ;
+  function setIsEnabled(newValue) {
+    if (currentStatus === PLUGIN_STATUSES.ACTIVE) {
+      toggleEnabledSiteLeadsPlugin(newValue);
+    } else {
+      wp.customize.previewer.refresh();
+    }
+  }
+  ;
   function onUpdatePhoneInput() {
     phoneInputNode = document.querySelector('#_customize-input-' + getWithThemePrefix('siteleads_number'));
     if (!phoneInputNode) {
@@ -148,10 +185,27 @@
     }
     phoneInputNode.removeAttribute('disabled');
   }
+  function onAddEnabledToggleListener() {
+    wp.customize(showContactPhoneWpSettingId, function (setting) {
+      setting.unbind(setIsEnabled);
+      setting.bind(setIsEnabled);
+    });
+  }
   function updateControlReactiveData() {
     onUpdateButtonTextAndListeners();
     onUpdateNoticeText();
     onUpdatePhoneInput();
+    onAddEnabledToggleListener();
+  }
+  function onEnableWordpressSetting() {
+    try {
+      const widgetCustomizerSettingEnabled = wp.customize(showContactPhoneWpSettingId).get();
+      if (!widgetCustomizerSettingEnabled) {
+        wp.customize(showContactPhoneWpSettingId).set(true);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
   const onInstallSiteLeadsPlugin = async () => {
     const slug = getSiteLeadsBackendData('pluginSlug');
@@ -198,6 +252,7 @@
       setIsLoadingText(getTranslatedText('info_notice_activating'));
       const result = await promise;
       setCurrentStatus(PLUGIN_STATUSES.ACTIVE);
+      onEnableWordpressSetting();
       await initSetupForSiteLeadsPlugin();
       wp.customize.previewer.save();
       return true;
@@ -218,7 +273,8 @@
     const promise = new Promise((resolve, reject) => {
       wp.ajax.post(ajaxHandle, {
         phone: phoneNumber,
-        _wpnonce: nonce
+        _wpnonce: nonce,
+        'start_source': 'contact-panel'
       }).done(response => {
         resolve(response);
       }).fail(error => {
@@ -351,7 +407,34 @@
       initApp();
     }, 0);
   }
+  function openContactSettings() {
+    const sectionId = getSiteLeadsBackendData('contactSectionId');
+    wp?.customize?.section?.(sectionId, function (section) {
+      section.expand();
+    });
+  }
+  function onAddClickOnWidgetOpenPanel(e) {
+    let target = e?.target;
+    if (!target?.closest?.('.siteleads-fc-widgets')) {
+      return;
+    }
+    openContactSettings();
+  }
+  async function addPreviewerListeners() {
+    await sleep(100);
+    let iframe = document.querySelector('#customize-preview iframe');
+    if (!iframe) {
+      return;
+    }
+    let iframeDocument = iframe?.contentWindow?.document;
+    if (!iframeDocument) {
+      return;
+    }
+    iframeDocument.removeEventListener('click', onAddClickOnWidgetOpenPanel, true);
+    iframeDocument.addEventListener('click', onAddClickOnWidgetOpenPanel, true);
+  }
   $(document).ready(function () {
     onAddPanelReflowListener();
+    wp.customize?.previewer?.bind?.('ready', addPreviewerListeners);
   });
 })(jQuery);
