@@ -64,19 +64,13 @@ wp_localize_script(
                     <div class="description" style="margin:2px 0 5px; font-size: 13px; padding: 2px;">
                         <?php
                         if(SiteLeads::show_install_siteleads_recommendation()) {
-                            ?>
-
-                             <?php
-                                esc_html_e(
-                                    sprintf(
-                                        __( 'This action will install the %s recommended', 'mesmerize' ),
-                                        SiteLeads::get_current_theme_name()
-                                    )
-                                );
-                                SiteLeads::printSiteLeadsRecommendationPlugins();
-                            ?>
-
-                                <?php
+                            esc_html_e(
+                                sprintf(
+                                    __( 'This action will install the %s recommended', 'mesmerize' ),
+                                    SiteLeads::get_current_theme_name()
+                                )
+                            );
+                            SiteLeads::printSiteLeadsRecommendationPlugins();
                         } else {
                             esc_html_e(
                                 sprintf(

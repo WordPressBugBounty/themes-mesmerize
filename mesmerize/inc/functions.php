@@ -1320,3 +1320,34 @@ function mesmerize_load_install_companion_script_in_customizer() {
     ]);
 }
 add_action('customize_controls_enqueue_scripts', 'mesmerize_load_install_companion_script_in_customizer');
+
+
+add_action('customize_controls_enqueue_scripts', function() {
+    $textDomain   = mesmerize_get_text_domain();
+
+    $handle = $textDomain . 'customizer-wp7-elements-reset';
+    wp_enqueue_style(
+        $handle,
+        get_template_directory_uri() . '/customizer/css/wp7-elements-reset.css',
+    );
+}, 1);
+
+add_action('admin_enqueue_scripts', function() {
+
+    if ( ! is_admin() ) {
+        return;
+    }
+
+    $screen = get_current_screen();
+
+    // Skip Customizer controls screen
+    if ( $screen && $screen->id === 'customize' ) {
+        return;
+    }
+    $textDomain = mesmerize_get_text_domain();
+    $handle = $textDomain . 'admin--wp7-elements-reset';
+    wp_enqueue_style(
+        "$handle-css",
+        get_template_directory_uri() . '/customizer/css/wp7-elements-reset.css'
+    );
+}, 1);

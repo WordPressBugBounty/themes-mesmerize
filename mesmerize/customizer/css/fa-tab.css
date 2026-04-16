@@ -39,3 +39,6 @@ i.fa-preview-icon {
     position: relative;
     top: 50%;
 }
+.cp-fa-images .attachment:not(:has(.filename))::after {
+    display: none;
+}

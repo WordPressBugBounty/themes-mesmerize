@@ -453,7 +453,7 @@ function mesmerize_woocommerce_version_notice()
     }
     
     ?>
-    <div class="notice notice-alt notice-error notice-large">
+    <div class="notice notice-alt notice-error notice-large mesmerize-notice">
         <h4><?php _e('WooCommerce version outdated!', 'mesmerize'); ?></h4>
         <p>
             <?php _e('You need to update your <strong>WooCommerce plugin</strong> to use it with the <strong>Mesmerize theme</strong>.', 'mesmerize'); ?> <br/>

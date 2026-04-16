@@ -29,7 +29,7 @@ function mesmerize_check_php_version()
 function mesmerize_php_version_notice()
 {
     ?>
-    <div class="notice notice-alt notice-error notice-large">
+    <div class="mesmerize-notice notice notice-alt notice-error notice-large">
         <h4><?php _e('Mesmerize theme activation failed!', 'mesmerize'); ?></h4>
         <p>
             <?php _e('You need to update your PHP version to use the <strong>Mesmerize</strong>.', 'mesmerize'); ?> <br/>

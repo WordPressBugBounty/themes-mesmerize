@@ -245,6 +245,10 @@
     cursor: pointer;
 }
 
+.mesmerize-start-with-front-page-notice {
+    background-color: #FFF;
+}
+
 #extendthemes_start_with_homepage {
     padding: 12px 0;
 }

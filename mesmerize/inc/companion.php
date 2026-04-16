@@ -14,7 +14,7 @@ class Companion_Plugin {
 		add_action( 'tgmpa_register', array( __CLASS__, 'tgma_register' ) );
 		add_action( 'wp_ajax_companion_disable_popup', array( __CLASS__, 'companion_disable_popup' ) );
         add_action('wp_ajax_on_install_activate_mesmerize_companion', array(__CLASS__, 'on_install_activate_mesmerize_companion'));
-
+        add_action('admin_enqueue_scripts', array(__CLASS__, 'load_admin_scripts'));
 		if ( get_template() === get_stylesheet() ) {
 
 			if ( ! get_option( 'mesmerize_companion_disable_popup', false ) ) {
@@ -34,10 +34,13 @@ class Companion_Plugin {
 		}
 
 	}
+    public static function load_admin_scripts() {
+        wp_enqueue_style( 'mesmerize_admin_pages_css', get_template_directory_uri() . '/assets/css/admin.css' );
 
+    }
 	public static function plugin_notice() {
 		?>
-        <div class="notice notice-success is-dismissible mesmerize-start-with-front-page-notice">
+        <div class="notice notice-success is-dismissible mesmerize-notice mesmerize-start-with-front-page-notice">
             <div class="notice-content-wrapper">
 				<?php mesmerize_require( "/customizer/start-with-frontpage.php" ); ?>
             </div>

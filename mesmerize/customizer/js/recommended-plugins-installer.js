@@ -4,7 +4,36 @@
         return new Promise( ( resolve ) => setTimeout( resolve, time ) );
     };
 
+    async function saveCustomizerSettings() {
+        let promiseResolve;
+        const promise = new Promise((resolve, reject) => {
+            promiseResolve = resolve;
+        })
+        let doneCallback = () => {
+            promiseResolve();
+        }
+        try {
+            if (!_.isEmpty(wp.customize.dirtyValues())) {
+                let executeCallback = true;
+                wp.customize.bind('save', () => {
+                    if (executeCallback) {
+                        $(window).off('beforeunload');
+                        setTimeout(doneCallback, 2000);
+                        executeCallback = false;
+                    }
+                });
+                wp.customize.previewer.save();
+            } else {
+                $(window).off('beforeunload');
+                setTimeout(doneCallback, 500);
+            }
+        } catch (e) {
+            doneCallback();
+            console.error(e);
+        }
+        await promise;
 
+    }
     function showOverlay(message) {
         var $overlay = jQuery('.mesmerize-customizer-overlay');
 
@@ -150,6 +179,7 @@
                 pluginNotice(getTranslatedText('activatingSiteLeads'));
                 await promise;
                 await sleep(100);
+                await saveCustomizerSettings();
                 await initSetupForSiteLeadsPlugin();
                 await sleep(100);
 
@@ -242,46 +272,7 @@
         }
     }
 
-    // save customizer changes and wait for the request to finish
-    async function saveCustomizerChanges() {
-        let saveButton = document.querySelector('#save');
-        if(!saveButton) {
-            return;
-        }
 
-
-
-        let hasChanges = !saveButton.hasAttribute('disabled');
-        if(!hasChanges) {
-            return;
-        }
-        let promiseResolve
-        let promiseResolved = false;
-        const promise = new Promise((resolve, reject) => {
-            promiseResolve = resolve;
-
-        });
-
-        const waitForSaveToFinish = () => {
-            if(promiseResolved) {
-                return;
-            }
-            promiseResolved = true;
-            promiseResolve();
-        }
-        wp.customize.bind( 'save', waitForSaveToFinish );
-
-        //failsafe in case of errors
-        setTimeout(() => {
-            if(promiseResolved) {
-                return
-            }
-            promiseResolved = true;
-            promiseResolve();
-        }, 15000)
-        saveButton.click();
-        await promise;
-    }
 
     function forceCustomizerPublishedState() {
         wp?.customize?.state?.('saved')?.set?.(true);
@@ -381,7 +372,7 @@ async function installAndActivateMesmerizeCompanionIfNeeded () {
         isPending = true;
         pluginNotice(getMesmerizeCompanionTranslatedText('preparing'));
         try {
-            await saveCustomizerChanges();
+            await saveCustomizerSettings();
         } catch(e) {
             console.error(e);
         }

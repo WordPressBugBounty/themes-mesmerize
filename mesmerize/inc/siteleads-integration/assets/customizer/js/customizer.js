@@ -8,6 +8,35 @@
   function getTranslatedText(name) {
     return getSiteLeadsBackendData(['translations', name], '');
   }
+  async function saveCustomizerSettings() {
+    let promiseResolve;
+    const promise = new Promise((resolve, reject) => {
+      promiseResolve = resolve;
+    });
+    let doneCallback = () => {
+      promiseResolve();
+    };
+    try {
+      if (!_.isEmpty(wp.customize.dirtyValues())) {
+        let executeCallback = true;
+        wp.customize.bind('save', () => {
+          if (executeCallback) {
+            $(window).off('beforeunload');
+            setTimeout(doneCallback, 2000);
+            executeCallback = false;
+          }
+        });
+        wp.customize.previewer.save();
+      } else {
+        $(window).off('beforeunload');
+        setTimeout(doneCallback, 500);
+      }
+    } catch (e) {
+      doneCallback();
+      console.error(e);
+    }
+    await promise;
+  }
   function getWithThemePrefix(path) {
     let themePrefix = getSiteLeadsBackendData('themePrefix');
     return themePrefix + path;
@@ -197,16 +226,18 @@
     onUpdatePhoneInput();
     onAddEnabledToggleListener();
   }
-  function onEnableWordpressSetting() {
-    try {
-      const widgetCustomizerSettingEnabled = wp.customize(showContactPhoneWpSettingId).get();
-      if (!widgetCustomizerSettingEnabled) {
-        wp.customize(showContactPhoneWpSettingId).set(true);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
+
+  // function onEnableWordpressSetting() {
+  // 	try {
+  // 		const widgetCustomizerSettingEnabled = wp.customize( showContactPhoneWpSettingId ).get(  );
+  // 		if(!widgetCustomizerSettingEnabled) {
+  // 			wp.customize( showContactPhoneWpSettingId ).set( true );
+  // 		}
+  // 	} catch ( e ) {
+  // 		console.error( e );
+  // 	}
+  // }
+
   const onInstallSiteLeadsPlugin = async () => {
     const slug = getSiteLeadsBackendData('pluginSlug');
     const promise = new Promise((resolve, reject) => {
@@ -252,7 +283,9 @@
       setIsLoadingText(getTranslatedText('info_notice_activating'));
       const result = await promise;
       setCurrentStatus(PLUGIN_STATUSES.ACTIVE);
-      onEnableWordpressSetting();
+
+      //	onEnableWordpressSetting();
+      await saveCustomizerSettings();
       await initSetupForSiteLeadsPlugin();
       wp.customize.previewer.save();
       return true;
